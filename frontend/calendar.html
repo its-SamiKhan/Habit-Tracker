@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habit Tracker - Calendar</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col animate-fade-in">
+  <header class="bg-white shadow p-4">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-gray-700">Habit Calendar</h1>
+      <a href="index.html" class="bg-blue-300 text-gray-800 px-4 py-2 rounded hover:bg-blue-400 transition transform hover:scale-105">Back to Dashboard</a>
+    </div>
+  </header>
+  <main class="max-w-4xl mx-auto p-4 flex-grow">
+    <div id="calendar" class="grid grid-cols-7 gap-1 mb-6"></div>
+    <p id="streak" class="text-lg font-semibold text-gray-600"></p>
+    <p id="total-completions" class="text-lg font-semibold text-gray-600"></p>
+  </main>
+  <footer class="bg-white p-4 text-center text-gray-500">Built with ❤️</footer>
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+    const token = localStorage.getItem('token');
+    const urlParams = new URLSearchParams(window.location.search);
+    const habitId = urlParams.get('habitId');
+
+    if (!token || !habitId) window.location.href = 'login.html';
+
+    async function loadCalendar() {
+      const response = await fetch(`${API_URL}/habits/${habitId}/logs`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const logs = await response.json();
+      const calendar = document.getElementById('calendar');
+      const days = Array(30).fill().map((_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const log = logs.find(l => l.date === dateStr);
+        return { date: dateStr, completed: log?.completed || false };
+      }).reverse();
+
+      days.forEach(day => {
+        const div = document.createElement('div');
+        div.className = `${day.completed ? 'bg-green-200' : 'bg-gray-200'} h-8 w-8 rounded transition hover:scale-110`;
+        div.title = day.date;  // Tooltip for date
+        calendar.appendChild(div);
+      });
+
+      let streak = 0;
+      for (let i = days.length - 1; i >= 0; i--) {
+        if (days[i].completed) streak++;
+        else break;
+      }
+      document.getElementById('streak').textContent = `Current Streak: ${streak} days`;
+
+      const totalCompletions = logs.filter(l => l.completed).length;
+      document.getElementById('total-completions').textContent = `Total Completions: ${totalCompletions}`;
+    }
+
+    loadCalendar();
+  </script>
+</body>
+</html>

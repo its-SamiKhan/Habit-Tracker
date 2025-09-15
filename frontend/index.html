@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habit Tracker - Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col animate-fade-in">
+  <header class="bg-white shadow p-4">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-gray-700">Habit Tracker</h1>
+      <button id="logout" class="bg-red-300 text-gray-800 px-4 py-2 rounded hover:bg-red-400 transition transform hover:scale-105">Logout</button>
+    </div>
+  </header>
+  <main class="max-w-4xl mx-auto p-4 flex-grow">
+    <section class="mb-6 bg-white p-4 rounded shadow-md">
+      <h2 class="text-xl font-semibold text-gray-600 mb-2">Add New Habit</h2>
+      <form id="habit-form" class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+        <input id="habit-name" placeholder="Habit name (e.g., Read 30 mins)" class="border border-gray-300 p-2 rounded flex-grow focus:border-blue-300" required>
+        <input id="habit-goal" placeholder="Goal (e.g., Daily)" class="border border-gray-300 p-2 rounded md:w-1/3 focus:border-blue-300" required>
+        <button type="submit" class="bg-blue-300 text-gray-800 p-2 rounded hover:bg-blue-400 transition transform hover:scale-105">Add Habit</button>
+      </form>
+    </section>
+    <section>
+      <h2 class="text-xl font-semibold text-gray-600 mb-2">Your Habits</h2>
+      <ul id="habit-list" class="space-y-3 animate-fade-in"></ul>
+    </section>
+  </main>
+  <footer class="bg-white p-4 text-center text-gray-500">
+    <a href="calendar.html" class="hover:text-blue-400 transition">View Calendar for Specific Habit</a> | Built with ❤️
+  </footer>
+  <script src="js/main.js"></script>
+</body>
+</html>
