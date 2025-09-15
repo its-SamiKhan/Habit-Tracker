@@ -26,7 +26,14 @@
     const urlParams = new URLSearchParams(window.location.search);
     const habitId = urlParams.get('habitId');
 
-    if (!token || !habitId) window.location.href = 'login.html';
+    if (!token) {
+      alert('Please log in to view the calendar');
+      window.location.href = 'login.html';
+    }
+    if (!habitId) {
+      alert('No habit selected. Please go back to the dashboard and click "View Calendar" on a habit.');
+      window.location.href = 'index.html';
+    }
 
     async function loadCalendar() {
       const response = await fetch(`${API_URL}/habits/${habitId}/logs`, {
@@ -44,8 +51,32 @@
 
       days.forEach(day => {
         const div = document.createElement('div');
-        div.className = `${day.completed ? 'bg-green-200' : 'bg-gray-200'} h-8 w-8 rounded transition hover:scale-110`;
+        div.className = `${day.completed ? 'bg-green-200' : 'bg-gray-200'} h-8 w-8 rounded transition hover:scale-110 cursor-pointer`;
         div.title = day.date;  // Tooltip for date
+        div.addEventListener('click', async () => {
+          let note = '';
+          if (!day.completed) {
+            note = prompt('Add a note for this day (optional):', '') || '';
+          }
+          try {
+            const resp = await fetch(`${API_URL}/habits/${habitId}/toggle`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ date: day.date, note })
+            });
+            if (resp.ok) {
+              calendar.innerHTML = '';
+              loadCalendar();
+            } else {
+              alert('Failed to toggle');
+            }
+          } catch (e) {
+            console.error('Toggle error', e);
+          }
+        });
         calendar.appendChild(div);
       });
 

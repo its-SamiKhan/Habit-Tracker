@@ -1,0 +1,10 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/calendar", "destination": "/calendar.html" },
+    { "source": "/frontend/calendar", "destination": "/calendar.html" },
+    { "source": "/frontend/:path*", "destination": "/:path*" }
+  ]
+}
+
+
