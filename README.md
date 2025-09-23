@@ -43,6 +43,59 @@ habit-tracker/
 - A code editor like VS Code
 - Browser for testing (e.g., Chrome)
 
+## Steps to Run the Website Locally
+
+### Quick Start Commands
+
+**1. Start MongoDB (if not already running):**
+```bash
+brew services start mongodb-community
+```
+
+**2. Start the Backend Server:**
+```bash
+cd /Users/sam/Projects/Habit-Tracker/backend
+npm start
+```
+*Keep this terminal window open - the server will run on port 3000*
+
+**3. Start the Frontend Server (in a new terminal):**
+```bash
+cd /Users/sam/Projects/Habit-Tracker/frontend
+python3 -m http.server 3001
+```
+*Keep this terminal window open - the frontend will run on port 3001*
+
+**4. Access Your Application:**
+Open your browser and go to: **http://localhost:3001**
+
+### Stop the Services
+
+**To stop everything:**
+- **Backend**: Press `Ctrl+C` in the backend terminal
+- **Frontend**: Press `Ctrl+C` in the frontend terminal  
+- **MongoDB**: `brew services stop mongodb-community`
+
+### Quick Reference
+
+**Start everything:**
+```bash
+# Terminal 1
+brew services start mongodb-community
+cd /Users/sam/Projects/Habit-Tracker/backend && npm start
+
+# Terminal 2 (new terminal)
+cd /Users/sam/Projects/Habit-Tracker/frontend && python3 -m http.server 3001
+```
+
+**Access:** http://localhost:3001
+
+**Stop everything:**
+```bash
+# Press Ctrl+C in both terminals, then:
+brew services stop mongodb-community
+```
+
 ## Setup Instructions
 
 ### Step 1: Backend Setup
@@ -101,6 +154,7 @@ habit-tracker/
 3. Add habits using the dashboard
 4. Log daily completions
 5. View progress calendar for each habit
+
 6. Test responsive design by resizing the browser
 
 ## API Endpoints
