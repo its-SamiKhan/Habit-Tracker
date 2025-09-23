@@ -6,40 +6,65 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
-app.use(express.json());
 
-// MongoDB connection with clearer validation and startup gating
+// CORS configuration for production
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://your-vercel-app.vercel.app'] // Update with your Vercel URL
+    : ['http://localhost:3001', 'http://localhost:5000'],
+  credentials: true
+}));
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// MongoDB Atlas connection
 const { MONGO_URI, JWT_SECRET } = process.env;
 
 if (!MONGO_URI) {
-  console.error('Missing MONGO_URI in .env. Set your MongoDB Atlas connection string.');
+  console.error('Missing MONGO_URI environment variable. Please set your MongoDB Atlas connection string.');
   process.exit(1);
 }
 
-// Basic sanity checks to help diagnose common Atlas mistakes
-try {
-  const uri = new URL(MONGO_URI.replace('mongodb+srv://', 'https://'));
-  if (!MONGO_URI.startsWith('mongodb+srv://')) {
-    console.warn('MONGO_URI should start with mongodb+srv:// for Atlas.');
-  }
-  if (!uri.hostname || !/\./.test(uri.hostname)) {
-    console.warn('MONGO_URI hostname appears invalid. Expect something like cluster0.xxxxx.mongodb.net');
-  }
-} catch (_) {
-  console.warn('MONGO_URI format could not be parsed. Ensure it matches the Atlas connection string format.');
+if (!JWT_SECRET) {
+  console.error('Missing JWT_SECRET environment variable. Please set a secure secret key.');
+  process.exit(1);
 }
 
+// Connect to MongoDB Atlas
 mongoose
-  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(MONGO_URI, { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+    bufferCommands: false, // Disable mongoose buffering
+    bufferMaxEntries: 0 // Disable mongoose buffering
+  })
   .then(() => {
-    console.log('MongoDB connected');
+    console.log('Successfully connected to MongoDB Atlas');
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
   })
   .catch((err) => {
-    console.error('MongoDB connection error:', err.message || err);
-    console.error('\nTroubleshooting:\n- Use the exact Atlas URI from: Atlas → Connect → Drivers → Node.js\n- Include database name after host (e.g., /habit-tracker)\n- URL-encode password if it has special characters\n- Ensure your IP is allowed in Atlas Network Access');
+    console.error('MongoDB Atlas connection failed:', err.message);
+    console.error('Please check:');
+    console.error('- Your MongoDB Atlas connection string is correct');
+    console.error('- Your IP address is whitelisted in Atlas Network Access');
+    console.error('- Your database user has proper permissions');
+    console.error('- The cluster is running and accessible');
     process.exit(1);
   });
 

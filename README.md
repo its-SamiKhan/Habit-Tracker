@@ -115,7 +115,8 @@ brew services stop mongodb-community
    MONGO_URI=mongodb://localhost:27017/habit-tracker
    JWT_SECRET=your-secret-key-here
    ```
-   - For MongoDB Atlas, replace the URI with your Atlas connection string
+   - For **local development**: Use `mongodb://localhost:27017/habit-tracker`
+   - For **MongoDB Atlas**: Use `mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/habit-tracker?retryWrites=true&w=majority`
    - Generate a strong JWT secret key
 
 4. Start MongoDB:
@@ -200,20 +201,28 @@ brew services stop mongodb-community
 
 ## Deployment
 
-### Frontend
-Deploy the `frontend/` folder to:
-- Netlify (drag and drop)
-- Vercel
+### Quick Deployment (Recommended)
+Follow the detailed guide in [DEPLOYMENT.md](DEPLOYMENT.md) for step-by-step instructions.
+
+**Recommended Setup:**
+- **Frontend**: Vercel (free tier)
+- **Backend**: Render (free tier) 
+- **Database**: MongoDB Atlas (free tier)
+
+### Alternative Hosting Options
+
+#### Frontend
+- Vercel (recommended)
+- Netlify
 - GitHub Pages
 
-### Backend
-Deploy to:
-- Render
-- Heroku
+#### Backend
+- Render (recommended)
 - Railway
+- Heroku (limited free tier)
 
-### Database
-Use MongoDB Atlas for production.
+#### Database
+- MongoDB Atlas (always recommended for production)
 
 ## Troubleshooting
 

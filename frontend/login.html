@@ -17,8 +17,9 @@
     </form>
     <p class="mt-4 text-gray-600">No account? <a href="register.html" class="text-blue-300 hover:text-blue-400">Register</a></p>
   </div>
+  <script src="js/config.js"></script>
   <script>
-    const API_URL = 'http://localhost:3000/api';
+    const API_URL = window.CONFIG.API_URL;
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value;
