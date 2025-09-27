@@ -8,15 +8,19 @@ require('dotenv').config();
 const app = express();
 
 // CORS configuration for production
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-vercel-app.vercel.app'] // Update with your Vercel URL
-    : ['http://localhost:3001', 'http://localhost:5000'],
-  credentials: true
-}));
+const corsOptions = {
+  origin: [
+    'http://localhost:3001', // Local development
+    'https://habit-tracker.vercel.app', // Vercel frontend (will be updated after deployment)
+    'https://*.vercel.app' // Allow all Vercel subdomains
+  ],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
@@ -47,8 +51,7 @@ mongoose
     useUnifiedTopology: true,
     serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
     socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-    bufferCommands: false, // Disable mongoose buffering
-    bufferMaxEntries: 0 // Disable mongoose buffering
+    bufferCommands: false // Disable mongoose buffering
   })
   .then(() => {
     console.log('Successfully connected to MongoDB Atlas');
