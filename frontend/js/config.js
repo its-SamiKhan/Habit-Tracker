@@ -12,7 +12,7 @@ const CONFIG = {
     }
     
     // Production - Render backend URL (update this with your actual Render URL)
-    return 'https://YOUR-ACTUAL-RENDER-URL.onrender.com/api';
+    return 'https://habit-tracker-backend-zzzj.onrender.com';
   })()
 };
 
