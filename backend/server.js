@@ -11,6 +11,9 @@ const app = express();
 const corsOptions = {
   origin: [
     'http://localhost:3001', // Local development
+    'http://[::]:3001',      // Python HTTP server IPv6
+    'http://0.0.0.0:3001',   // Python HTTP server all interfaces
+    'http://127.0.0.1:3001', // Python HTTP server IPv4
     'https://habit-tracker.vercel.app', // Vercel frontend (will be updated after deployment)
     'https://*.vercel.app' // Allow all Vercel subdomains
   ],
@@ -31,22 +34,20 @@ app.get('/health', (req, res) => {
   });
 });
 
-// MongoDB Atlas connection
+// MongoDB connection - local or Atlas
 const { MONGO_URI, JWT_SECRET } = process.env;
 
-if (!MONGO_URI) {
-  console.error('Missing MONGO_URI environment variable. Please set your MongoDB Atlas connection string.');
-  process.exit(1);
-}
+// Use local MongoDB for development, Atlas for production
+const mongoUri = MONGO_URI || 'mongodb://localhost:27017/habit-tracker';
 
 if (!JWT_SECRET) {
   console.error('Missing JWT_SECRET environment variable. Please set a secure secret key.');
   process.exit(1);
 }
 
-// Connect to MongoDB Atlas
+// Connect to MongoDB
 mongoose
-  .connect(MONGO_URI, { 
+  .connect(mongoUri, { 
     useNewUrlParser: true, 
     useUnifiedTopology: true,
     serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
@@ -54,7 +55,7 @@ mongoose
     bufferCommands: false // Disable mongoose buffering
   })
   .then(() => {
-    console.log('Successfully connected to MongoDB Atlas');
+    console.log(`Successfully connected to MongoDB: ${mongoUri.includes('localhost') ? 'Local MongoDB' : 'MongoDB Atlas'}`);
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
@@ -62,12 +63,19 @@ mongoose
     });
   })
   .catch((err) => {
-    console.error('MongoDB Atlas connection failed:', err.message);
-    console.error('Please check:');
-    console.error('- Your MongoDB Atlas connection string is correct');
-    console.error('- Your IP address is whitelisted in Atlas Network Access');
-    console.error('- Your database user has proper permissions');
-    console.error('- The cluster is running and accessible');
+    console.error('MongoDB connection failed:', err.message);
+    if (mongoUri.includes('localhost')) {
+      console.error('Please check:');
+      console.error('- MongoDB is running locally (mongod command)');
+      console.error('- MongoDB is accessible on port 27017');
+      console.error('- No other process is using port 27017');
+    } else {
+      console.error('Please check:');
+      console.error('- Your MongoDB Atlas connection string is correct');
+      console.error('- Your IP address is whitelisted in Atlas Network Access');
+      console.error('- Your database user has proper permissions');
+      console.error('- The cluster is running and accessible');
+    }
     process.exit(1);
   });
 
