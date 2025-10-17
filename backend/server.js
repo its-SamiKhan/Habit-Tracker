@@ -12,6 +12,7 @@ const corsOptions = {
   origin: [
     'http://localhost:3001', // Local development
     'http://[::]:3001',      // Python HTTP server IPv6
+    'http://[::1]:3001',     // Python HTTP server IPv6 localhost
     'http://0.0.0.0:3001',   // Python HTTP server all interfaces
     'http://127.0.0.1:3001', // Python HTTP server IPv4
     'https://habit-tracker.vercel.app', // Vercel frontend (will be updated after deployment)
