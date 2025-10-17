@@ -9,7 +9,7 @@ mongod --dbpath /Users/sam/Projects/Habit-Tracker/.mongo-data --logpath /Users/s
 2) Backend (env, install, run)
 
 cd /Users/sam/Projects/Habit-Tracker/backend
-printf "JWT_SECRET=dev_secret\nMONGO_URI=mongodb://localhost:27017/habit-tracker\n" > .env
+printf "JWT_SECRET=7Cimlbw7Rhzkx8BbRLdARAcIv58KzxlrutJLgUbr9+Q=\nMONGO_URI=mongodb+srv://habittrackeruser:F9p4FYndSKPq73jV@cluster0.hbvnena.mongodb.net/habittracker?retryWrites=true&w=majority&appName=Cluster0\n" > .env
 npm ci
 npm run start
 
