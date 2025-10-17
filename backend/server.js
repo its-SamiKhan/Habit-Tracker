@@ -8,21 +8,38 @@ require('dotenv').config();
 const app = express();
 
 // CORS configuration for production
+const allowedLocalOrigins = [
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
+  'http://[::]:3001',
+  'http://[::1]:3001',
+  'http://0.0.0.0:3001'
+];
+
 const corsOptions = {
-  origin: [
-    'http://localhost:3001', // Local development
-    'http://[::]:3001',      // Python HTTP server IPv6
-    'http://[::1]:3001',     // Python HTTP server IPv6 localhost
-    'http://0.0.0.0:3001',   // Python HTTP server all interfaces
-    'http://127.0.0.1:3001', // Python HTTP server IPv4
-    'https://habit-tracker.vercel.app', // Vercel frontend (will be updated after deployment)
-    'https://*.vercel.app' // Allow all Vercel subdomains
-  ],
+  origin: (origin, callback) => {
+    // Allow non-browser requests (curl, server-to-server)
+    if (!origin) return callback(null, true);
+
+    // Allow localhost development origins
+    if (allowedLocalOrigins.includes(origin)) return callback(null, true);
+
+    // Allow any Vercel subdomain and custom vercel domains
+    const vercelRegex = /^https?:\/\/[a-z0-9-]+\.vercel\.app$/i;
+    if (vercelRegex.test(origin)) return callback(null, true);
+
+    // Allow Render-hosted frontends if used
+    const renderRegex = /^https?:\/\/[a-z0-9-]+\.onrender\.com$/i;
+    if (renderRegex.test(origin)) return callback(null, true);
+
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
